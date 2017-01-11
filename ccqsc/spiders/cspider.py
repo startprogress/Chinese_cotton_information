@@ -1,10 +1,10 @@
 import os
 import scrapy
 import json
-from scrapy import log
+# from scrapy import log
 from ccqsc.items import tmpItem
 from scrapy.http.request import Request
-scrapy.log.start(logfile='error.log', loglevel=ERROR, logstdout=None)
+# scrapy.log.start(logfile='error.log', loglevel=ERROR, logstdout=None)
 
 
 class ccqsc(scrapy.Spider):
@@ -13,10 +13,11 @@ class ccqsc(scrapy.Spider):
     def __init__(self, date=None, path='data/'):
         self.date = date
         self.path = path
-        allowed_domains = ["ccqsc.gov.cn", "cottoneasy.com", "cottonchina.org"]
-        start_urls = [
-            "http://www.cottoneasy.com/storage/maStorageProgressListInit"
-        ]
+
+    allowed_domains = ["ccqsc.gov.cn", "cottoneasy.com", "cottonchina.org"]
+    start_urls = [
+        "http://www.cottoneasy.com/storage/maStorageProgressListInit"
+    ]
 
     def parse(self, response):
         #item = tmpItem()
@@ -37,10 +38,10 @@ class ccqsc(scrapy.Spider):
 
     def parse3(self, response):
         item = response.meta['item']
-            batchnum = response.meta['batchnum']
-            #item['date'] = self.date
-            #item['path'] = self.path
-            item['json'] = json.loads(response.body_as_unicode())
+        batchnum = response.meta['batchnum']
+        #item['date'] = self.date
+        #item['path'] = self.path
+        item['json'] = json.loads(response.body_as_unicode())
         if os.path.exists(self.path + self.date):
             pass
         else:
