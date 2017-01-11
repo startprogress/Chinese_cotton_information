@@ -1,3 +1,6 @@
 data/*
-ccqsc/*.pyc
-ccqsc/spiders/*.pyc
+ccqsc/items.pyc
+ccqsc/settings.pyc
+ccqsc/__init__.pyc
+ccqsc/spiders/__init__.pyc
+ccqsc/spiders/cspeder.pyc
