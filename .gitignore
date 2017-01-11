@@ -1,2 +1,3 @@
 data/*
-*.pyc
+ccqsc/*.pyc
+ccqsc/spiders/*.pyc
