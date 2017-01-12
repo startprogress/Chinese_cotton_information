@@ -1,6 +1,6 @@
 ## 文件结构介绍
 * ccqsc:　包含爬虫的代码
-* data：　默认存放文件的文件夹
+* data：　默认存放文件的文件夹,程序运行时自动创建
 * scrapy.cfg:　项目配置文件
 * build.sh:　环境搭建的shell脚本
 * README.md： 项目阅读说明
