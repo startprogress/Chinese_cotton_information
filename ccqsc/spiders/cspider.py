@@ -4,10 +4,8 @@ import os
 import scrapy
 import datetime
 import json
-# from scrapy import log
 from ccqsc.items import tmpItem
 from scrapy.http.request import Request
-# scrapy.log.start(logfile='error.log', loglevel=ERROR, logstdout=None)
 
 class ccqsc(scrapy.Spider):
     name = "ccqsc"
