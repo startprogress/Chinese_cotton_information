@@ -4,9 +4,10 @@ import os
 import scrapy
 import datetime
 import json
-from ccqsc.items import tmpItem
 from scrapy.http.request import Request
 
+# ccqsc网站拿到json数据
+from ccqsc.items import ccqscItem
 class ccqsc(scrapy.Spider):
     name = "ccqsc"
     #如果不提供参数，日期默认为系统当前日期，路径默认为"data/"
@@ -45,7 +46,7 @@ class ccqsc(scrapy.Spider):
                 yield Request(req, callback=self.parse2)
     #第二层，拿到每一批次的编号
     def parse2(self, response):
-        item = tmpItem()
+        item = ccqscItem()
         #只要批次号，所以每8个td才取一次
         for i in range(8, len(response.xpath('//td')), 8):
             batchnum = "".join(response.xpath(
@@ -67,3 +68,40 @@ class ccqsc(scrapy.Spider):
         with open(self.path + self.date + '/' + batchnum + '.json', 'wb') as f:
             f.write(json.dumps(dict(item['json'])))
         yield item
+
+
+
+# 大渊博网站
+from ccqsc.items import dyb_Item
+# obtain the urls of entrepot
+class dybcotton(scrapy.Spider):
+    name = "dybcotton"
+    def __init__(self, year):
+        self.year = year
+    allowed_domains = ["dybcotton.com"]
+    start_urls = [
+        "http://www.dybcotton.com/entrepot"
+    ]
+
+    def parse(self, response):
+        for sel in response.xpath('//div[@class="col-sm-6 col-md-4 col-lg-3 "]'):
+            yield Request("http://www.dybcotton.com" + "".join(sel.xpath('div/a/@href').extract()).strip() + "?productionYear=" + self.year, callback=self.parse2)
+
+
+
+    def parse2(self, response):
+        #item = dyb_Item()
+        a_num = len(response.xpath('//html/body/div[4]/div[2]/div[2]/div[2]/div/a'))
+        page_info = ''.join(response.xpath('//html/body/div[4]/div[2]/div[2]/div[2]/div/a[' + str(a_num) + ']/@href').extract()).strip()
+        page_max = page_info[(page_info.rfind("=") + 1):]
+        page_to = page_info[:(page_info.rfind("=") + 1)]
+        for i in range(1, int(page_max)):
+            #item['title'] = "".join(sel.xpath('div/a/div[1]/h4/text()').extract()).strip()
+            #item['link'] = "http://www.dybcotton.com" + page_to + str(i)
+            yield Request("http://www.dybcotton.com" + page_to + str(i), callback=self.parse3)
+
+    def parse3(self, response):
+        item = dyb_Item()
+        for i in range(1, len(response.xpath('//html/body/div[4]/div[2]/div[2]/table[2]/tr')),2):
+            item['link'] = "http://www.dybcotton.com" + "".join(response.xpath('/html/body/div[4]/div[2]/div[2]/table[2]/tr[' + str(i) + ']/td[1]/a/@href').extract())
+            yield item

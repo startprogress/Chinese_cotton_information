@@ -7,8 +7,12 @@
 
 import scrapy
 
-class tmpItem(scrapy.Item):
+class ccqscItem(scrapy.Item):
     batch = scrapy.Field()
     json = scrapy.Field()
     # date = scrapy.Field()
     # path = scrapy.Field()
+
+class dyb_Item(scrapy.Item):
+    title = scrapy.Field()
+    link = scrapy.Field()
