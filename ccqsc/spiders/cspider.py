@@ -103,5 +103,11 @@ class dybcotton(scrapy.Spider):
     def parse3(self, response):
         item = dyb_Item()
         for i in range(1, len(response.xpath('//html/body/div[4]/div[2]/div[2]/table[2]/tr')),2):
-            item['link'] = "http://www.dybcotton.com" + "".join(response.xpath('/html/body/div[4]/div[2]/div[2]/table[2]/tr[' + str(i) + ']/td[1]/a/@href').extract())
-            yield item
+            finalurl = "http://www.dybcotton.com" + "".join(response.xpath('/html/body/div[4]/div[2]/div[2]/table[2]/tr[' + str(i) + ']/td[1]/a/@href').extract())
+	    item['link'] = finalurl
+            yield Request(finalurl, callback=self.parse4)
+
+    def parse4(self, response):
+	# 根据自己所需信息制定进行页面解析	
+
+
