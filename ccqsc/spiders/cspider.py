@@ -10,13 +10,12 @@ from scrapy.http.request import Request
 from ccqsc.items import ccqscItem
 class ccqsc(scrapy.Spider):
     name = "ccqsc"
-    #如果不提供参数，日期默认为系统当前日期，路径默认为"data/"
-    today =  datetime.datetime.now().strftime("%Y-%m-%d")
-    def __init__(self, date=today, path='data/'):
-        if path[-1] != '/':
-            path = path + '/'
-        self.date = date
+    # 路径默认为"data/"
+    year = datetime.datetime.now().strftime("%Y")
+    def __init__(self, cookie, path='data/', year=year):
+        self.cookie = cookie
         self.path = path
+        self.year = year
 
     allowed_domains = ["ccqsc.gov.cn", "cottoneasy.com", "cottonchina.org"]
     start_urls = [
@@ -25,25 +24,19 @@ class ccqsc(scrapy.Spider):
     #第一层，拿到42个储运站的URL
     def parse(self, response):
         # 将时间范围拆分放入list中
-        if len(self.date) > 10:
-            date_range = []
-            date1 = self.date[0:10]
-            date2 = self.date[11:]
-            curr_date = datetime.date(
-                int(date1[0:4]), int(date1[5:7]), int(date1[8:10]))
-            end_date = datetime.date(
-                int(date2[0:4]), int(date2[5:7]), int(date2[8:10]))
-            while curr_date != end_date:
-                date_range.append(str(curr_date))
-                curr_date += datetime.timedelta(days=1)
-        else:
-            date_range = [self.date]
+        date_range = []
+        curr_date = datetime.date(int(self.year), 1, 1)
+        end_date = datetime.date(int(self.year), 12, 31)
+        while curr_date != end_date:
+            date_range.append(str(curr_date))
+            curr_date += datetime.timedelta(days=1)
         for date_i in date_range:
             for i in range(0, len(response.xpath('//a[@class="fsize_12 btn-link pr_5"]')), 7):
                 originreq = "".join(response.xpath(
                     '//a[@class="fsize_12 btn-link pr_5"]')[i].xpath('@href').extract())
                 req = "http://www.cottoneasy.com/" + originreq[:-10] + date_i
                 yield Request(req, callback=self.parse2)
+
     #第二层，拿到每一批次的编号
     def parse2(self, response):
         item = ccqscItem()
@@ -53,19 +46,18 @@ class ccqsc(scrapy.Spider):
                 '//td')[i].xpath('text()').extract())
             req = "http://www.ccqsc.gov.cn/query/compareBatchInfoData.action?batchCodeInput=" + batchnum
             item['batch'] = batchnum
-            yield Request(req, meta={'item': item, 'batchnum': batchnum}, callback=self.parse3)
+            yield Request(req, meta={'item': item, 'batchnum': batchnum}, cookies={'JSESSIONID':self.cookie}, callback=self.parse3)
+
     #第三层，依据编号到ccsqc网站拿json数据存入
     def parse3(self, response):
         item = response.meta['item']
         batchnum = response.meta['batchnum']
-        #item['date'] = self.date
-        #item['path'] = self.path
         item['json'] = json.loads(response.body_as_unicode())
-        if os.path.exists(self.path + self.date):
+        if os.path.exists(self.path + self.year):
             pass
         else:
-            os.makedirs(self.path + self.date)
-        with open(self.path + self.date + '/' + batchnum + '.json', 'wb') as f:
+            os.makedirs(self.path + self.year)
+        with open(self.path + self.year + '/' + batchnum + '.json', 'wb') as f:
             f.write(json.dumps(dict(item['json'])))
         yield item
 
@@ -107,7 +99,5 @@ class dybcotton(scrapy.Spider):
 	    item['link'] = finalurl
             yield Request(finalurl, callback=self.parse4)
 
-    def parse4(self, response):
+    #def parse4(self, response):
 	# 根据自己所需信息制定进行页面解析	
-
-
