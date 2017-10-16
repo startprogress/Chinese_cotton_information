@@ -11,7 +11,7 @@
 
 ## 使用说明
 * 首先参照环境准备，确认scrapy安装成功
-* 由于ccqsc新加入了登陆，且有验证码，所以需要用户先登录http://www.ccqsc.gov.cn/,登陆后复制cookie作为命令的参数，比如这时的cookie是EEE7E90276C7318D892D642B99D9A359
+* 由于ccqsc新加入了登陆，且有验证码，所以需要用户先登录 http://www.ccqsc.gov.cn/, 登陆后复制cookie作为命令的参数，比如这时的cookie是EEE7E90276C7318D892D642B99D9A359
 * 在根目录执行爬虫执行命令: scrapy crawl ccqsc -a cookie="EEE7E90276C7318D892D642B99D9A359"， 如果有权限问题，在最前边加上sudo
 * 执行命令的时候，浏览器不要关闭，因为cookie的过期时间是浏览会话结束时
 
